@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion';
 import { Sparkles, Info } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../config/api';
+
 
 const AIInsightMarquee = () => {
   const [insight, setInsight] = useState("Protus AI is analyzing your performance...");
@@ -9,12 +10,11 @@ const AIInsightMarquee = () => {
   useEffect(() => {
     const fetchInsight = async () => {
       try {
-        const u = JSON.parse(localStorage.getItem('user'));
-        const res = await axios.post('http://localhost:5000/api/chat', 
-          { message: "Give me a 1-sentence quick health insight or encouragement based on my profile." }, 
-          { headers: { Authorization: `Bearer ${u.token}` } }
+        const res = await api.post('/chat', 
+          { message: "Give me a 1-sentence quick health insight or encouragement based on my profile." }
         );
         setInsight(res.data.reply);
+
       } catch (err) {
         console.error(err);
       }

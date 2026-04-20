@@ -12,7 +12,8 @@ import {
   VolumeX,
   Languages
 } from 'lucide-react';
-import axios from 'axios';
+import api from '../../config/api';
+
 import useSpeech from '../../hooks/useSpeech';
 
 const Assistant = () => {
@@ -51,23 +52,19 @@ const Assistant = () => {
     setLoading(true);
 
     try {
-      const user = JSON.parse(localStorage.getItem('user'));
       let response;
 
       if (imageFile) {
         const formData = new FormData();
         formData.append('image', imageFile);
-        response = await axios.post('http://localhost:5000/api/chat/vision', formData, {
+        response = await api.post('/chat/vision', formData, {
           headers: { 
-            Authorization: `Bearer ${user.token}`,
             'Content-Type': 'multipart/form-data'
           }
         });
         setImageFile(null);
       } else {
-        response = await axios.post('http://localhost:5000/api/chat', { message: userMessage }, {
-          headers: { Authorization: `Bearer ${user.token}` }
-        });
+        response = await api.post('/chat', { message: userMessage });
       }
 
       const reply = response.data.reply;
@@ -116,16 +113,15 @@ const Assistant = () => {
   const handleAudioUpload = async (blob) => {
     setLoading(true);
     try {
-      const user = JSON.parse(localStorage.getItem('user'));
       const formData = new FormData();
       formData.append('audio', blob, 'voice.wav');
 
-      const res = await axios.post('http://localhost:5000/api/chat/voice', formData, {
+      const res = await api.post('/chat/voice', formData, {
         headers: { 
-          Authorization: `Bearer ${user.token}`,
           'Content-Type': 'multipart/form-data'
         }
       });
+
 
       const transcription = res.data.text || '';
       setInput(transcription);

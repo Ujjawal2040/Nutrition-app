@@ -17,7 +17,9 @@ import {
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
-import axios from 'axios';
+import api from '../config/api';
+
+
 
 const articles = [
   {
@@ -70,11 +72,8 @@ const Resources = () => {
     setLoading(true);
     setGuideData(null);
     try {
-      const u = JSON.parse(localStorage.getItem('user'));
-      const res = await axios.post('http://localhost:5000/api/chat/health-guide', { 
+      const res = await api.post('/chat/health-guide', { 
         topic: topic.title 
-      }, {
-        headers: { Authorization: `Bearer ${u.token}` }
       });
       setGuideData(res.data.data.guide);
     } catch (err) {

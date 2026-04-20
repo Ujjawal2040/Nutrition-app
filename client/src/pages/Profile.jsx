@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { User, Weight, Ruler, Activity, Save, CheckCircle, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../config/api';
+
 
 const Profile = () => {
   const { user } = useSelector((state) => state.auth);
@@ -23,15 +24,15 @@ const Profile = () => {
     setLoading(true);
     setSuccess(false);
     try {
-      const u = JSON.parse(localStorage.getItem('user'));
-      const response = await axios.patch('http://localhost:5000/api/auth/update-profile', 
-        { profile: { ...user.data.user.profile, ...formData } },
-        { headers: { Authorization: `Bearer ${u.token}` } }
+      const response = await api.patch('/auth/update-profile', 
+        { profile: { ...user.data.user.profile, ...formData } }
       );
       
-      // Update local storage and potentially sync with Redux if implemented
+      // Update local storage
+      const u = JSON.parse(localStorage.getItem('user'));
       const updatedUser = { ...u, data: { ...u.data, user: response.data.data.user } };
       localStorage.setItem('user', JSON.stringify(updatedUser));
+
       
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);

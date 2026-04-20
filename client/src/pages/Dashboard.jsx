@@ -20,7 +20,7 @@ import {
   Plus
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import axios from 'axios';
+import api from '../config/api';
 import NutrientCard from '../components/Dashboard/NutrientCard';
 import WaterTracker from '../components/Dashboard/WaterTracker';
 import WeeklyChart from '../components/Dashboard/WeeklyChart';
@@ -38,13 +38,10 @@ const Dashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const u = JSON.parse(localStorage.getItem('user'));
-      const headers = { Authorization: `Bearer ${u.token}` };
-      
       const [logRes, statsRes, userRes] = await Promise.all([
-        axios.get(`http://localhost:5000/api/nutrition/log?date=${new Date().toISOString()}`, { headers }),
-        axios.get('http://localhost:5000/api/stats/weekly', { headers }),
-        axios.get('http://localhost:5000/api/auth/me', { headers })
+        api.get(`/nutrition/log?date=${new Date().toISOString()}`),
+        api.get('/stats/weekly'),
+        api.get('/auth/me')
       ]);
 
       setDailyLog(logRes.data.data.log);
@@ -55,21 +52,20 @@ const Dashboard = () => {
     }
   };
 
+
   useEffect(() => {
     fetchDashboardData();
   }, []);
 
   const seedMockData = async () => {
     try {
-      const u = JSON.parse(localStorage.getItem('user'));
-      await axios.post('http://localhost:5000/api/stats/seed-history', {}, {
-        headers: { Authorization: `Bearer ${u.token}` }
-      });
+      await api.post('/stats/seed-history', {});
       fetchDashboardData();
     } catch (err) {
       console.error(err);
     }
   };
+
 
   const stats = {
     calories: { 

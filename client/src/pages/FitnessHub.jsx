@@ -18,7 +18,8 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
-import axios from 'axios';
+import api from '../config/api';
+
 
 const exercises = [
   { name: "Bench Press", category: "Chest", image: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=800&auto=format&fit=crop" },
@@ -62,13 +63,11 @@ const FitnessHub = () => {
     setViewType(type);
     
     try {
-      const u = JSON.parse(localStorage.getItem('user'));
       const endpoint = type === 'exercise' ? 'workout-deep-dive' : 'health-guide';
       const payload = type === 'exercise' ? { exercise: topic.title || topic.name } : { topic: topic.title || topic.name };
       
-      const res = await axios.post(`http://localhost:5000/api/chat/${endpoint}`, payload, {
-        headers: { Authorization: `Bearer ${u.token}` }
-      });
+      const res = await api.post(`/chat/${endpoint}`, payload);
+
       
       setContentData(type === 'exercise' ? res.data.data : res.data.data.guide);
     } catch (err) {

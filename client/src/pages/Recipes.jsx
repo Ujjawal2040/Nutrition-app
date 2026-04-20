@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Search, ChefHat, Filter, Info, Heart } from 'lucide-react';
-import axios from 'axios';
+import api from '../config/api';
 import { motion, AnimatePresence } from 'framer-motion';
+
 import RecipeCard from '../components/Recipe/RecipeCard';
 
 const Recipes = () => {
@@ -15,12 +16,9 @@ const Recipes = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const u = JSON.parse(localStorage.getItem('user'));
-        const headers = { Authorization: `Bearer ${u.token}` };
-
         const [recipesRes, userRes] = await Promise.all([
-          axios.get('http://localhost:5000/api/recipes', { headers }),
-          axios.get('http://localhost:5000/api/auth/me', { headers })
+          api.get('/recipes'),
+          api.get('/auth/me')
         ]);
 
         setRecipes(recipesRes.data.data.recipes);
@@ -37,10 +35,8 @@ const Recipes = () => {
 
   const handleToggleFavorite = async (recipeId) => {
     try {
-      const u = JSON.parse(localStorage.getItem('user'));
-      const response = await axios.post('http://localhost:5000/api/stats/favorite', 
-        { type: 'recipes', id: recipeId },
-        { headers: { Authorization: `Bearer ${u.token}` } }
+      const response = await api.post('/stats/favorite', 
+        { type: 'recipes', id: recipeId }
       );
       setFavorites(response.data.data.favorites.recipes);
     } catch (err) {
@@ -50,7 +46,6 @@ const Recipes = () => {
 
   const handleAddToList = async (items) => {
     try {
-      const u = JSON.parse(localStorage.getItem('user'));
       // Deduplicate items
       const combined = [...groceryList];
       items.forEach(newItem => {
@@ -59,10 +54,7 @@ const Recipes = () => {
         }
       });
       
-      await axios.patch('http://localhost:5000/api/stats/grocery', 
-        { items: combined },
-        { headers: { Authorization: `Bearer ${u.token}` } }
-      );
+      await api.patch('/stats/grocery', { items: combined });
       setGroceryList(combined);
     } catch (err) {
       console.error(err);
@@ -73,11 +65,8 @@ const Recipes = () => {
     if (!search.trim()) return;
     setLoading(true);
     try {
-      const u = JSON.parse(localStorage.getItem('user'));
-      const res = await axios.post('http://localhost:5000/api/chat/health-guide', { 
+      const res = await api.post('/chat/health-guide', { 
         topic: "Healthy Recipe for " + search 
-      }, {
-        headers: { Authorization: "Bearer " + u.token }
       });
       
       // We'll treat the guide as a temporary recipe for now
@@ -88,6 +77,7 @@ const Recipes = () => {
       setLoading(false);
     }
   };
+
 
   const filteredRecipes = recipes.filter(recipe => {
     const matchesSearch = (recipe.title || '').toLowerCase().includes((search || '').toLowerCase());

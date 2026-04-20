@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion';
 import { Plus, Droplet } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../config/api';
+
 
 const WaterTracker = ({ initialWater }) => {
   const [water, setWater] = useState(initialWater || 0);
@@ -14,14 +15,14 @@ const WaterTracker = ({ initialWater }) => {
 
   const addWater = async (amount) => {
     try {
-      const u = JSON.parse(localStorage.getItem('user'));
       const newTotal = water + amount;
       setWater(newTotal);
       
-      await axios.patch(`http://localhost:5000/api/nutrition/log/water`, 
-        { amount: newTotal, date: new Date().toISOString() }, 
-        { headers: { Authorization: `Bearer ${u.token}` } }
-      );
+      await api.patch('/nutrition/log/water', { 
+        amount: newTotal, 
+        date: new Date().toISOString() 
+      });
+
     } catch (err) {
       console.error(err);
     }

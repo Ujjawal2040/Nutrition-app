@@ -1,17 +1,10 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-
-const API_URL = 'http://localhost:5000/api/nutrition';
-
-const getAuthHeader = (thunkAPI) => {
-  const token = thunkAPI.getState().auth.user?.token;
-  return { headers: { Authorization: `Bearer ${token}` } };
-};
+import api from '../../config/api';
 
 // Search Food
 export const searchFood = createAsyncThunk('nutrition/search', async (query, thunkAPI) => {
   try {
-    const response = await axios.get(`${API_URL}/search?q=${query}`, getAuthHeader(thunkAPI));
+    const response = await api.get(`/nutrition/search?q=${query}`);
     return response.data;
   } catch (error) {
     return thunkAPI.rejectWithValue(error.response.data.message);
@@ -21,7 +14,7 @@ export const searchFood = createAsyncThunk('nutrition/search', async (query, thu
 // Log Food
 export const logFood = createAsyncThunk('nutrition/log', async (foodData, thunkAPI) => {
   try {
-    const response = await axios.post(`${API_URL}/log`, foodData, getAuthHeader(thunkAPI));
+    const response = await api.post('/nutrition/log', foodData);
     return response.data;
   } catch (error) {
     return thunkAPI.rejectWithValue(error.response.data.message);
@@ -31,12 +24,13 @@ export const logFood = createAsyncThunk('nutrition/log', async (foodData, thunkA
 // Get Daily Log
 export const getDailyLog = createAsyncThunk('nutrition/getLog', async (date, thunkAPI) => {
   try {
-    const response = await axios.get(`${API_URL}/log?date=${date}`, getAuthHeader(thunkAPI));
+    const response = await api.get(`/nutrition/log?date=${date}`);
     return response.data;
   } catch (error) {
     return thunkAPI.rejectWithValue(error.response.data.message);
   }
 });
+
 
 const initialState = {
   dailyLog: null,

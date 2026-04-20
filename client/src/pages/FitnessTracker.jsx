@@ -16,8 +16,9 @@ import {
   X
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../config/api';
 import { motion, AnimatePresence } from 'framer-motion';
+
 
 const FitnessTracker = () => {
   const [activities, setActivities] = useState([]);
@@ -35,12 +36,9 @@ const FitnessTracker = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const u = JSON.parse(localStorage.getItem('user'));
-        const headers = { Authorization: `Bearer ${u.token}` };
-        
         const [userRes, logRes] = await Promise.all([
-          axios.get('http://localhost:5000/api/auth/me', { headers }),
-          axios.get('http://localhost:5000/api/activity/recent', { headers })
+          api.get('/auth/me'),
+          api.get('/activity/recent')
         ]);
 
         setUserWeight(userRes.data.data.user.profile.weight || 70);
@@ -57,10 +55,7 @@ const FitnessTracker = () => {
     if (!search) return;
     const fetchActivities = async () => {
       try {
-        const u = JSON.parse(localStorage.getItem('user'));
-        const response = await axios.get(`http://localhost:5000/api/activity/search?q=${search}`, {
-          headers: { Authorization: `Bearer ${u.token}` }
-        });
+        const response = await api.get(`/activity/search?q=${search}`);
         setActivities(response.data.data.activities);
       } catch (err) {
         console.error(err);
@@ -81,14 +76,11 @@ const FitnessTracker = () => {
     if (!selectedActivity) return;
     setStatus('logging');
     try {
-      const u = JSON.parse(localStorage.getItem('user'));
-      const res = await axios.post('http://localhost:5000/api/activity/log', {
+      const res = await api.post('/activity/log', {
         activityId: selectedActivity._id,
         duration,
         intensity,
         date: new Date().toISOString()
-      }, {
-        headers: { Authorization: `Bearer ${u.token}` }
       });
       
       setTodayLogs(res.data.data.log.activities);
@@ -106,15 +98,13 @@ const FitnessTracker = () => {
 
   const handleDelete = async (idx) => {
     try {
-      const u = JSON.parse(localStorage.getItem('user'));
-      const res = await axios.delete(`http://localhost:5000/api/activity/${activeLogId}/${idx}`, {
-        headers: { Authorization: `Bearer ${u.token}` }
-      });
+      const res = await api.delete(`/activity/${activeLogId}/${idx}`);
       setTodayLogs(res.data.data.log.activities);
     } catch (err) {
       console.error(err);
     }
   };
+
 
   const quickLogItems = [
     { name: 'Walking', icon: <Activity className="text-blue-400" />, id: 'walking' },

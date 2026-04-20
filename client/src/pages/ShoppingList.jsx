@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { ShoppingCart, Check, Trash2, Plus, ArrowLeft, Loader2, Apple, Beef, Carrot, Coffee } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../config/api';
 import { motion, AnimatePresence } from 'framer-motion';
+
 
 const ShoppingList = () => {
   const [items, setItems] = useState([]);
@@ -19,10 +20,7 @@ const ShoppingList = () => {
   useEffect(() => {
     const fetchList = async () => {
       try {
-        const u = JSON.parse(localStorage.getItem('user'));
-        const response = await axios.get('http://localhost:5000/api/auth/me', {
-          headers: { Authorization: `Bearer ${u.token}` }
-        });
+        const response = await api.get('/auth/me');
         setItems(response.data.data.user.groceryList || []);
       } catch (err) {
         console.error(err);
@@ -35,14 +33,12 @@ const ShoppingList = () => {
 
   const saveList = async (updatedItems) => {
     try {
-      const u = JSON.parse(localStorage.getItem('user'));
-      await axios.patch('http://localhost:5000/api/stats/grocery', { items: updatedItems }, {
-        headers: { Authorization: `Bearer ${u.token}` }
-      });
+      await api.patch('/stats/grocery', { items: updatedItems });
     } catch (err) {
       console.error(err);
     }
   };
+
 
   const addItem = (nameArg) => {
     const name = nameArg || newItem;

@@ -20,7 +20,8 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { searchFood, logFood, getDailyLog } from '../store/slices/nutritionSlice';
-import axios from 'axios';
+import api from '../config/api';
+
 
 const mealIcons = {
   breakfast: <Coffee size={18} className="text-orange-400" />,
@@ -69,14 +70,10 @@ const NutritionTracker = () => {
     setAiLoading(true);
     setAiResult(null);
     try {
-      const uString = localStorage.getItem('user');
-      if (!uString) return;
-      const u = JSON.parse(uString);
-      
-      const res = await axios.post('http://localhost:5000/api/chat', 
-        { message: "Extract nutrients from this meal description: " + query + ". Output pure JSON with keys: name, calories, protein, carbs, fats." }, 
-        { headers: { Authorization: "Bearer " + u.token } }
+      const res = await api.post('/chat', 
+        { message: "Extract nutrients from this meal description: " + query + ". Output pure JSON with keys: name, calories, protein, carbs, fats." }
       );
+
       
       const rx = new RegExp('\\{.*\\}', 's');
       const match = res.data.reply.match(rx);
