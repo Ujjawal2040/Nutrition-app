@@ -53,6 +53,27 @@
 
 *Stay tuned for stunning UI walkthroughs!*
 
+## 🎮 Running Locally
+
+Since this is a monorepo, you can now run both the frontend and backend with a single command from the root directory:
+
+1. **Install all dependencies** (run once):
+   ```bash
+   npm run install:all
+   ```
+
+2. **Start both servers**:
+   ```bash
+   npm run dev
+   ```
+
+*   **Frontend**: `http://localhost:5173`
+*   **Backend**: `http://localhost:5000`
+
+---
+
+## 🚀 Vercel Deployment Prepared
+
 ---
 
 ## 📄 License
@@ -60,4 +81,3 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
 Built with ❤️ by [Protus Team]
-

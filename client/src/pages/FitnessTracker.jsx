@@ -91,9 +91,12 @@ const FitnessTracker = () => {
         setSelectedActivity(null);
       }, 2000);
     } catch (err) {
-      console.error(err);
+      console.error('Logging Error:', err);
+      const errorMsg = err.response?.data?.message || 'Failed to log activity. Please try again.';
+      alert(errorMsg);
       setStatus('error');
     }
+
   };
 
   const handleDelete = async (idx) => {

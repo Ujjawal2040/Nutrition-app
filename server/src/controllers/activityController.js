@@ -13,7 +13,13 @@ exports.logActivity = async (req, res) => {
 
     const weight = (req.user.profile && req.user.profile.weight) ? req.user.profile.weight : 70;
     const intensityMultiplier = intensity === 'high' ? 1.2 : intensity === 'low' ? 0.8 : 1.0;
-    const caloriesBurned = Math.round((activity.metValue * intensityMultiplier * 3.5 * weight * Number(duration)) / 200);
+    
+    let caloriesBurned = Math.round((activity.metValue * intensityMultiplier * 3.5 * weight * Number(duration || 0)) / 200);
+    
+    if (isNaN(caloriesBurned)) {
+      caloriesBurned = 0;
+    }
+
 
     const logDate = new Date(date || new Date());
     logDate.setHours(0, 0, 0, 0);
@@ -50,9 +56,10 @@ exports.logActivity = async (req, res) => {
 
     res.status(200).json({ status: 'success', data: { log } });
   } catch (error) {
-    console.error('logActivity Error:', error);
-    res.status(400).json({ status: 'fail', message: error.message });
+    console.error('FULL logActivity Error:', error);
+    res.status(400).json({ status: 'fail', message: error.message, errorDetails: error });
   }
+
 };
 
 exports.deleteActivity = async (req, res) => {

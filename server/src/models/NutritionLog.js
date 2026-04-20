@@ -61,15 +61,16 @@ const nutritionLogSchema = new mongoose.Schema({
 });
 
 // Calculate daily totals before saving
-nutritionLogSchema.pre('save', function(next) {
-  this.dailySummary.totalCalories = this.meals.reduce((sum, item) => sum + (item.nutrients.calories || 0), 0);
-  this.dailySummary.totalProtein = this.meals.reduce((sum, item) => sum + (item.nutrients.protein || 0), 0);
-  this.dailySummary.totalCarbs = this.meals.reduce((sum, item) => sum + (item.nutrients.carbs || 0), 0);
-  this.dailySummary.totalFats = this.meals.reduce((sum, item) => sum + (item.nutrients.fats || 0), 0);
+nutritionLogSchema.pre('save', function() {
+  this.dailySummary.totalCalories = Math.round(this.meals.reduce((sum, item) => sum + (item.nutrients?.calories || 0), 0)) || 0;
+  this.dailySummary.totalProtein = Math.round(this.meals.reduce((sum, item) => sum + (item.nutrients?.protein || 0), 0)) || 0;
+  this.dailySummary.totalCarbs = Math.round(this.meals.reduce((sum, item) => sum + (item.nutrients?.carbs || 0), 0)) || 0;
+  this.dailySummary.totalFats = Math.round(this.meals.reduce((sum, item) => sum + (item.nutrients?.fats || 0), 0)) || 0;
   
-  this.dailySummary.totalCaloriesBurned = this.activities.reduce((sum, item) => sum + (item.caloriesBurned || 0), 0);
-  this.dailySummary.netCalories = this.dailySummary.totalCalories - this.dailySummary.totalCaloriesBurned;
-  next();
+  this.dailySummary.totalCaloriesBurned = Math.round(this.activities.reduce((sum, item) => sum + (item.caloriesBurned || 0), 0)) || 0;
+  this.dailySummary.netCalories = (this.dailySummary.totalCalories || 0) - (this.dailySummary.totalCaloriesBurned || 0);
 });
+
+
 
 module.exports = mongoose.model('NutritionLog', nutritionLogSchema);
