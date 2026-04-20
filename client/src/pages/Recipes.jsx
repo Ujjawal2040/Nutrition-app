@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, ChefHat, Filter, Info, Heart } from 'lucide-react';
+import { Search, ChefHat, Filter, Info, Heart, X } from 'lucide-react';
 import api from '../config/api';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -11,6 +11,7 @@ const Recipes = () => {
   const [groceryList, setGroceryList] = useState([]);
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('all');
+  const [chefResponse, setChefResponse] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -64,13 +65,15 @@ const Recipes = () => {
   const handleAIChef = async () => {
     if (!search.trim()) return;
     setLoading(true);
+    setChefResponse(null);
     try {
       const res = await api.post('/chat/health-guide', { 
         topic: "Healthy Recipe for " + search 
       });
-      
-      // We'll treat the guide as a temporary recipe for now
-      alert("AI Chef says: \n\n" + res.data.data.guide);
+      setChefResponse({ 
+        query: search,
+        content: res.data.data.guide 
+      });
     } catch (err) {
       console.error(err);
     } finally {
@@ -126,6 +129,47 @@ const Recipes = () => {
           ))}
         </div>
       </div>
+
+      {/* AI Chef Result */}
+      <AnimatePresence>
+        {chefResponse && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="mb-12 overflow-hidden"
+          >
+            <div className="glass-card p-10 bg-gradient-to-br from-primary-950/20 to-transparent border-primary-500/20 relative">
+               <div className="absolute top-6 right-6">
+                  <button 
+                    onClick={() => setChefResponse(null)}
+                    className="p-2 w-10 h-10 rounded-full bg-white/5 text-slate-500 hover:text-white transition-colors flex items-center justify-center"
+                  >
+                    <X size={20} />
+                  </button>
+               </div>
+               <div className="flex items-center gap-4 mb-8">
+                  <div className="p-3 bg-primary-500 rounded-2xl shadow-[0_0_30px_rgba(var(--primary-rgb),0.4)]">
+                    <ChefHat className="text-white" size={24} />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-black text-white">AI Culinary Insight</h2>
+                    <p className="text-xs text-primary-500 font-bold uppercase tracking-widest">Custom creation for "{chefResponse.query}"</p>
+                  </div>
+               </div>
+               <div className="prose prose-invert max-w-none">
+                  <div className="text-slate-300 leading-relaxed whitespace-pre-wrap font-medium text-lg">
+                    {chefResponse.content}
+                  </div>
+               </div>
+               <div className="mt-10 pt-10 border-t border-white/5 flex gap-4">
+                  <button className="btn-primary py-3 px-8 text-xs">Save to favorites</button>
+                  <button className="px-8 py-3 bg-white/5 rounded-xl text-white text-xs font-black uppercase tracking-widest hover:bg-white/10 transition-all">Generate Shopping List</button>
+               </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

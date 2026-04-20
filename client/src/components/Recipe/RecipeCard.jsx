@@ -1,9 +1,10 @@
-import { Clock, Users, Flame, Heart, ShoppingCart, CheckCircle } from 'lucide-react';
+import { Clock, Users, Flame, Heart, ShoppingCart, CheckCircle, X } from 'lucide-react';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 
 const RecipeCard = ({ recipe, isFavorite, onToggleFavorite, onAddToList }) => {
   const [addingToCart, setAddingToCart] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
 
   const handleAddClick = async () => {
     setAddingToCart(true);
@@ -68,20 +69,84 @@ const RecipeCard = ({ recipe, isFavorite, onToggleFavorite, onAddToList }) => {
         </div>
 
         <div className="mt-auto flex gap-4">
-          <button className="flex-1 py-4 bg-white/5 border border-white/5 text-white font-black text-xs uppercase tracking-[0.2em] rounded-2xl hover:bg-primary-500 transition-all active:scale-95 shadow-xl">
+          <button 
+            onClick={() => setShowGuide(true)}
+            className="flex-1 py-4 bg-white/5 border border-white/5 text-white font-black text-xs uppercase tracking-[0.2em] rounded-2xl hover:bg-primary-500 transition-all active:scale-95 shadow-xl"
+          >
             View Guide
           </button>
           <button 
             onClick={handleAddClick}
             disabled={addingToCart}
             className={`w-14 h-14 rounded-2xl transition-all border flex items-center justify-center ${
-              addingToCart ? 'bg-green-500 border-green-500 text-white shadow-[0_0_30px_rgba(34,197,94,0.3)]' : 'bg-white/5 border-white/5 text-slate-500 hover:text-white hover:bg-primary-500 hover:border-primary-500'
+              addingToCart 
+              ? 'bg-green-500 border-green-500 text-white shadow-[0_0_30px_rgba(34,197,94,0.3)]' 
+              : 'bg-white/5 border-white/5 text-slate-500 hover:text-white hover:bg-primary-500 hover:border-primary-500'
             }`}
           >
             {addingToCart ? <CheckCircle size={24} /> : <ShoppingCart size={24} />}
           </button>
         </div>
       </div>
+
+      {/* Modern Modal Overlay */}
+      <AnimatePresence>
+        {showGuide && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-950/80 backdrop-blur-md"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="glass-card w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col border-white/10 shadow-[0_0_100px_rgba(0,0,0,0.5)]"
+            >
+              <div className="relative h-64">
+                <img src={recipe.image} className="w-full h-full object-cover" alt="" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent" />
+                <button 
+                  onClick={() => setShowGuide(false)}
+                  className="absolute top-6 right-6 w-10 h-10 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-black transition-all"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              
+              <div className="p-8 overflow-y-auto custom-scrollbar">
+                <h2 className="text-3xl font-black text-white mb-6 tracking-tight">{recipe.title}</h2>
+                
+                <div className="grid grid-cols-2 gap-10 mb-10">
+                  <div>
+                    <h4 className="text-[10px] font-black uppercase text-primary-500 tracking-[0.2em] mb-4">Ingredients</h4>
+                    <ul className="space-y-3">
+                      {recipe.ingredients.map((ing, i) => (
+                        <li key={i} className="text-sm text-slate-300 flex items-center gap-3">
+                          <div className="w-1.5 h-1.5 rounded-full bg-primary-500" />
+                          <span>{ing.name} <span className="text-slate-500 text-xs ml-1">({ing.amount})</span></span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="text-[10px] font-black uppercase text-blue-500 tracking-[0.2em] mb-4">Preparation</h4>
+                    <div className="space-y-4">
+                       {recipe.instructions.map((step, i) => (
+                         <div key={i} className="flex gap-4">
+                            <span className="text-xl font-black text-white/10">{i+1}</span>
+                            <p className="text-sm text-slate-400 leading-relaxed">{step}</p>
+                         </div>
+                       ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

@@ -20,10 +20,16 @@ exports.getWeeklyStats = async (req, res) => {
     for (let i = 0; i < 7; i++) {
       const d = new Date(startDate);
       d.setDate(startDate.getDate() + i);
-      const log = logs.find(l => l.date.toDateString() === d.toDateString());
+      const dateStr = d.toISOString().split('T')[0];
+      
+      const log = logs.find(l => {
+        const logDateStr = l.date.toISOString().split('T')[0];
+        return logDateStr === dateStr;
+      });
       
       stats.push({
         day: d.toLocaleDateString('en-US', { weekday: 'short' }),
+        fullDate: dateStr,
         calories: log ? log.dailySummary.totalCalories : 0,
         burned: log ? log.dailySummary.totalCaloriesBurned : 0
       });
